@@ -1,9 +1,33 @@
-FROM haydenmcp/environment:development-ubuntu-nodejs-0.0.1
+FROM haydenmcp/environment:development-ubuntu-nodejs-0.0.2
 
-ENV GIT_AUTHOR_NAME $GIT_AUTHOR_NAME
-ENV GIT_AUTHOR_EMAIL $GIT_AUTHOR_EMAIL
+ARG GIT_AUTHOR_NAME
+ARG GIT_AUTHOR_EMAIL
 
-RUN sudo apt-get update && sudo apt-get upgrade -y
-RUN sudo apt-get install git -y
+ENV GIT_AUTHOR_NAME=$GIT_AUTHOR_NAME
+ENV GIT_AUTHOR_EMAIL=$GIT_AUTHOR_EMAIL
 
-RUN git config --global user.name $GIT_AUTHOR_NAME && git config --global user.email GIT_AUTHOR_EMAIL
+
+# Environment Setup/Configuration
+USER root
+
+# Perform System Update
+RUN apt-get update && apt-get upgrade -y
+
+# Git
+RUN apt-get install git -y
+
+# VS Code
+ADD vscode.deb .
+RUN apt install -y ./vscode.deb
+RUN rm vscode.deb
+RUN apt-get install apt-transport-https -y
+RUN apt-get update
+RUN apt-get install -y code
+
+# User Configuration
+USER developer
+
+RUN mkdir ~/code
+WORKDIR ~/code
+
+CMD ["/bin/bash"]
